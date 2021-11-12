@@ -20,17 +20,14 @@ repositories {
 }
 
 dependencies {
-    compile 'net.simforge:simforge-commons:latest.release'
-    compile 'net.simforge:simforge-commons-ext:latest.release'
-    compile 'net.simforge:network-view-core:latest.release'
+    implementation 'net.simforge:simforge-commons:latest.release'
+    implementation 'net.simforge:simforge-commons-ext:latest.release'
+    implementation 'net.simforge:network-view-core:latest.release'
 
-    compile 'postgresql:postgresql:9.1-901-1.jdbc4'
+    implementation 'postgresql:postgresql:9.1-901-1.jdbc4'
+    implementation 'ch.qos.logback:logback-classic:1.1.7'
+    implementation 'org.ehcache:ehcache:3.3.1'
+    implementation 'com.google.code.gson:gson:2.8.6'
 
-    compile 'ch.qos.logback:logback-classic:1.1.7'
-
-    compile 'org.ehcache:ehcache:3.3.1'
-
-    compile 'com.google.code.gson:gson:2.8.6'
-
-    testCompile 'junit:junit:4.11'
+    testImplementation 'junit:junit:4.11'
 }
