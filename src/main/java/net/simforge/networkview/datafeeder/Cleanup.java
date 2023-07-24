@@ -19,6 +19,7 @@ import java.util.concurrent.TimeUnit;
 
 public class Cleanup extends BaseTask {
     private static final String ARG_NETWORK = "network";
+    private static final String ARG_KEEP_DAYS = "keep-days";
 
     private ReportSessionManager reportSessionManager;
     private Network network;
@@ -28,14 +29,24 @@ public class Cleanup extends BaseTask {
 
     @SuppressWarnings("unused")
     public Cleanup(Properties properties) {
-        this(DatafeederTasks.getSessionManager(), Network.valueOf(properties.getProperty(ARG_NETWORK)));
+        this(DatafeederTasks.getSessionManager(), Network.valueOf(properties.getProperty(ARG_NETWORK)), properties);
     }
 
     @SuppressWarnings("WeakerAccess")
-    public Cleanup(ReportSessionManager reportSessionManager, Network network) {
+    public Cleanup(ReportSessionManager reportSessionManager, Network network, Properties properties) {
         super("Cleanup-" + network);
         this.reportSessionManager = reportSessionManager;
         this.network = network;
+
+        try {
+            keepDays = Integer.parseInt(properties.getProperty(ARG_KEEP_DAYS));
+        } catch (Exception e) {
+            //noop
+        }
+
+        if (keepDays <= 0) {
+            keepDays = 1;
+        }
     }
 
     @Override
@@ -45,6 +56,9 @@ public class Cleanup extends BaseTask {
         BM.setLoggingPeriod(TimeUnit.HOURS.toMillis(1));
 
         RunningMarker.lock(getTaskName());
+
+        logger.info("Network        : " + network);
+        logger.info("Keep days      : " + keepDays);
 
         archivedReportMarker = new Marker("Archive-" + network);
     }
