@@ -11,6 +11,7 @@ import net.simforge.networkview.core.report.ParsingLogics;
 import net.simforge.networkview.core.report.ReportUtils;
 import net.simforge.networkview.core.report.persistence.*;
 import net.simforge.networkview.datafeeder.CacheHelper;
+import net.simforge.networkview.datafeeder.CompactifiedStorage;
 import net.simforge.networkview.datafeeder.DatafeederTasks;
 import org.ehcache.Cache;
 import org.ehcache.CacheManager;
@@ -34,6 +35,7 @@ public class Parse extends BaseTask {
     private Network network;
     private String storageRoot = ReportJSONStorage.DEFAULT_STORAGE_ROOT;
     private ReportJSONStorage storage;
+    private CompactifiedStorage compactifiedStorage;
     private boolean singleRun = false;
     @SuppressWarnings("FieldCanBeLocal")
     private Marker marker;
@@ -82,6 +84,7 @@ public class Parse extends BaseTask {
 
 
         storage = ReportJSONStorage.getStorage(storageRoot, network);
+        compactifiedStorage = CompactifiedStorage.getStorage(storageRoot, network);
         marker = new Marker(getTaskName());
         reportSessionManager = DatafeederTasks.getSessionManager();
 
@@ -275,6 +278,10 @@ public class Parse extends BaseTask {
             }
 
             logger.debug(ReportUtils.log(_report) + " -       Pilot positions inserted");
+
+            // todo ak move it to download task!!!
+            compactifiedStorage.save(_report.getReport(), existingPositions);
+            logger.debug(ReportUtils.log(_report) + " -       Compactified report file saved");
         } finally {
             BM.stop();
         }
