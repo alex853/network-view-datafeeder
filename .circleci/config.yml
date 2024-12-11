@@ -13,7 +13,7 @@ jobs:
           keys:
             - v1-dependencies-{{ checksum "build.gradle" }}
             - v1-dependencies-
-      - run: gradle distZip
+      - run: gradle distZip --refresh-dependencies
       - save_cache:
           paths:
             - ~/.gradle
