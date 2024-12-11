@@ -7,11 +7,12 @@ import net.simforge.commons.misc.Misc;
 import net.simforge.commons.runtime.BaseTask;
 import net.simforge.commons.runtime.RunningMarker;
 import net.simforge.networkview.core.Network;
+import net.simforge.networkview.core.Position;
 import net.simforge.networkview.core.report.ParsingLogics;
 import net.simforge.networkview.core.report.ReportUtils;
 import net.simforge.networkview.core.report.persistence.*;
 import net.simforge.networkview.datafeeder.CacheHelper;
-import net.simforge.networkview.datafeeder.CompactifiedStorage;
+import net.simforge.networkview.datafeeder.compact.CompactifiedStorage;
 import net.simforge.networkview.datafeeder.DatafeederTasks;
 import org.ehcache.Cache;
 import org.ehcache.CacheManager;
@@ -26,6 +27,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 import java.util.concurrent.TimeUnit;
+
+import static java.util.stream.Collectors.toList;
 
 public class Parse extends BaseTask {
 
@@ -280,7 +283,11 @@ public class Parse extends BaseTask {
             logger.debug(ReportUtils.log(_report) + " -       Pilot positions inserted");
 
             // todo ak move it to download task!!!
-            compactifiedStorage.save(_report.getReport(), existingPositions);
+            compactifiedStorage.savePositions(
+                    _report.getReport(),
+                    existingPositions.stream()
+                            .map(Position::create)
+                            .collect(toList()));
             logger.debug(ReportUtils.log(_report) + " -       Compactified report file saved");
         } finally {
             BM.stop();

@@ -5,7 +5,6 @@ import net.simforge.networkview.core.Network;
 import org.junit.Test;
 
 import java.io.IOException;
-import java.util.Optional;
 
 import static org.junit.Assert.assertEquals;
 

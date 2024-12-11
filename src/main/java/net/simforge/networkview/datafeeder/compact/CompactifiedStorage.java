@@ -1,13 +1,12 @@
-package net.simforge.networkview.datafeeder;
+package net.simforge.networkview.datafeeder.compact;
 
 import net.simforge.commons.legacy.BM;
-import net.simforge.networkview.core.CompactifiedPosition;
 import net.simforge.networkview.core.Network;
 import net.simforge.networkview.core.Position;
 import net.simforge.networkview.core.report.ReportUtils;
-import net.simforge.networkview.core.report.persistence.ReportPilotPosition;
 
-import java.io.ByteArrayOutputStream;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
@@ -15,51 +14,46 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-// todo ak separate file-writer-reader for specific version and tests on it
 public class CompactifiedStorage {
-    private static final int V1_HEAD = 1;
-    private static final int V1_EOF = 0xffffffff;
-
     private final Path root;
 
     private CompactifiedStorage(final String rootPath, final Network network) {
-        root = Paths.get(rootPath, network.name(), "/compactified");
+        root = Paths.get(rootPath, network.name(), "compactified");
+
+        try {
+            if (!Files.exists(root)) {
+                Files.createDirectory(root);
+            }
+        } catch (IOException e) {
+            throw new RuntimeException("unable to create root folder", e);
+        }
     }
 
     public static CompactifiedStorage getStorage(final String storageRoot, final Network network) {
         return new CompactifiedStorage(storageRoot, network);
     }
 
-    public void save(final String report, final List<ReportPilotPosition> positions) {
-        final ByteArrayOutputStream baos = new ByteArrayOutputStream();
+    public void savePositions(final String report, final List<Position> positions) {
+        final Path reportPath = root.resolve(report);
 
-        baos.write(V1_HEAD);
-        baos.write(positions.size());
-
-        positions.forEach(p -> {
-            final Position position = Position.create(p);
-            final CompactifiedPosition compactPosition = Position.compactify(position);
-            try {
-                baos.write(compactPosition.asBytes());
-            } catch (final IOException e) {
-                throw new RuntimeException(e);
-            }
-        });
-
-        try {
-            baos.write(V1_EOF);
-            baos.close();
-
-            if (!Files.exists(root)) {
-                Files.createDirectory(root);
-            }
-            Files.write(root.resolve(report),
-                    baos.toByteArray(),
-                    StandardOpenOption.CREATE,
-                    StandardOpenOption.TRUNCATE_EXISTING,
-                    StandardOpenOption.WRITE);
+        try (final FileOutputStream fos = new FileOutputStream(reportPath.toFile())) {
+            V1Ops.saveToStream(positions, fos);
         } catch (final IOException e) {
-            throw new RuntimeException(e);
+            throw new RuntimeException("unable to save compactified report data", e);
+        }
+    }
+
+    public List<Position> loadPositions(final String report) {
+        final Path reportPath = root.resolve(report);
+
+        if (!Files.exists(reportPath)) {
+            throw new IllegalArgumentException("unable to find report " + report);
+        }
+
+        try (final FileInputStream fis = new FileInputStream(reportPath.toFile())) {
+            return V1Ops.loadFromStream(fis);
+        } catch (final IOException e) {
+            throw new RuntimeException("unable to load compactified report data", e);
         }
     }
 
