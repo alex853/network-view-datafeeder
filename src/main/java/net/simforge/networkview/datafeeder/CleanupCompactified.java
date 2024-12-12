@@ -6,7 +6,7 @@ import net.simforge.commons.runtime.BaseTask;
 import net.simforge.commons.runtime.RunningMarker;
 import net.simforge.networkview.core.Network;
 import net.simforge.networkview.core.report.ReportUtils;
-import net.simforge.networkview.datafeeder.compact.CompactifiedStorage;
+import net.simforge.networkview.core.report.compact.CompactifiedStorage;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
