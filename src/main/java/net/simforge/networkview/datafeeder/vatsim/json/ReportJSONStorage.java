@@ -56,7 +56,7 @@ public class ReportJSONStorage {
     }
 
     public String getFirstReport() throws IOException {
-        List<String> allReports = listAllReportFiles();
+        List<String> allReports = listAllReports();
         if (allReports.size() == 0) {
             return null;
         }
@@ -64,7 +64,7 @@ public class ReportJSONStorage {
     }
 
     public String getNextReport(String previousReport) throws IOException {
-        List<String> allReports = listAllReportFiles();
+        List<String> allReports = listAllReports();
         if (allReports.size() == 0) {
             return null;
         }
@@ -79,7 +79,7 @@ public class ReportJSONStorage {
     }
 
     public String getLastReport() throws IOException {
-        List<String> allReports = listAllReportFiles();
+        List<String> allReports = listAllReports();
         if (allReports.size() == 0) {
             return null;
         }
@@ -95,19 +95,19 @@ public class ReportJSONStorage {
         return reportFile;
     }
 
-    private List<String> listAllReportFiles() throws IOException {
+    public List<String> listAllReports() throws IOException {
         BM.start("ReportJSONStorage.listAllReportFiles");
         try {
             final List<String> reports = new ArrayList<>();
 
             Files.walkFileTree(Paths.get(root.toURI()), new FileVisitor<Path>() {
                 @Override
-                public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) throws IOException {
+                public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) {
                     return FileVisitResult.CONTINUE;
                 }
 
                 @Override
-                public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
+                public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) {
                     if (!attrs.isRegularFile()) {
                         return FileVisitResult.CONTINUE;
                     }
@@ -129,12 +129,12 @@ public class ReportJSONStorage {
                 }
 
                 @Override
-                public FileVisitResult visitFileFailed(Path file, IOException exc) throws IOException {
+                public FileVisitResult visitFileFailed(Path file, IOException exc) {
                     return FileVisitResult.CONTINUE;
                 }
 
                 @Override
-                public FileVisitResult postVisitDirectory(Path dir, IOException exc) throws IOException {
+                public FileVisitResult postVisitDirectory(Path dir, IOException exc) {
                     return FileVisitResult.CONTINUE;
                 }
             });

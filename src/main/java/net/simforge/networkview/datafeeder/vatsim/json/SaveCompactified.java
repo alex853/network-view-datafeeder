@@ -79,13 +79,15 @@ public class SaveCompactified extends BaseTask {
             if (lastProcessedReport == null) {
                 final LocalDateTime thresholdDt = JavaTime.nowUtc().minusDays(keepDays);
 
-                String currReport = storage.getFirstReport();
-                while (currReport != null) {
+                final List<String> all = storage.listAllReports();
+
+                String currReport = null;
+                for (final String each : all) {
+                    currReport = each;
                     final LocalDateTime currDt = ReportUtils.fromTimestampJava(currReport);
                     if (currDt.isAfter(thresholdDt)) {
                         break;
                     }
-                    currReport = storage.getNextReport(currReport);
                 }
 
                 nextReport = currReport;
