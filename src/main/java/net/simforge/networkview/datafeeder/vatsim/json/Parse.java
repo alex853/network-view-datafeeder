@@ -7,10 +7,8 @@ import net.simforge.commons.misc.Misc;
 import net.simforge.commons.runtime.BaseTask;
 import net.simforge.commons.runtime.RunningMarker;
 import net.simforge.networkview.core.Network;
-import net.simforge.networkview.core.Position;
 import net.simforge.networkview.core.report.ParsingLogics;
 import net.simforge.networkview.core.report.ReportUtils;
-import net.simforge.networkview.core.report.compact.CompactifiedStorage;
 import net.simforge.networkview.core.report.persistence.*;
 import net.simforge.networkview.datafeeder.CacheHelper;
 import net.simforge.networkview.datafeeder.DatafeederTasks;
@@ -28,8 +26,6 @@ import java.util.List;
 import java.util.Properties;
 import java.util.concurrent.TimeUnit;
 
-import static java.util.stream.Collectors.toList;
-
 public class Parse extends BaseTask {
 
     private static final String ARG_SINGLE = "single";
@@ -38,7 +34,6 @@ public class Parse extends BaseTask {
     private Network network;
     private String storageRoot = ReportJSONStorage.DEFAULT_STORAGE_ROOT;
     private ReportJSONStorage storage;
-    private CompactifiedStorage compactifiedStorage;
     private boolean singleRun = false;
     @SuppressWarnings("FieldCanBeLocal")
     private Marker marker;
@@ -87,7 +82,6 @@ public class Parse extends BaseTask {
 
 
         storage = ReportJSONStorage.getStorage(storageRoot, network);
-        compactifiedStorage = CompactifiedStorage.getStorage(storageRoot, network);
         marker = new Marker(getTaskName());
         reportSessionManager = DatafeederTasks.getSessionManager();
 
@@ -281,14 +275,6 @@ public class Parse extends BaseTask {
             }
 
             logger.debug(ReportUtils.log(_report) + " -       Pilot positions inserted");
-
-            // todo ak move it to download task!!!
-            compactifiedStorage.savePositions(
-                    _report.getReport(),
-                    existingPositions.stream()
-                            .map(Position::create)
-                            .collect(toList()));
-            logger.debug(ReportUtils.log(_report) + " -       Compactified report file saved");
         } finally {
             BM.stop();
         }

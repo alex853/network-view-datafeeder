@@ -7,6 +7,7 @@ import net.simforge.commons.runtime.RunningMarker;
 import net.simforge.networkview.core.Network;
 import net.simforge.networkview.core.report.ReportUtils;
 import net.simforge.networkview.core.report.compact.CompactifiedStorage;
+import net.simforge.networkview.datafeeder.vatsim.json.ReportJSONStorage;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
@@ -14,6 +15,7 @@ import java.util.Properties;
 import java.util.concurrent.TimeUnit;
 
 public class CleanupCompactified extends BaseTask {
+
     private static final String ARG_NETWORK = "network";
     private static final String ARG_STORAGE = "storage";
     private static final String ARG_KEEP_DAYS = "keep-days";
@@ -31,10 +33,12 @@ public class CleanupCompactified extends BaseTask {
 
     @SuppressWarnings("WeakerAccess")
     public CleanupCompactified(final Network network, final Properties properties) {
-        super("CleanCompact-" + network);
+        super("CleanCmp-" + network);
+
         this.network = network;
+        this.storageRoot = properties.getProperty(ARG_STORAGE, ReportJSONStorage.DEFAULT_STORAGE_ROOT);
         this.keepDays = Math.max(Integer.parseInt(properties.getProperty(ARG_KEEP_DAYS)), 1);
-        this.storageRoot = properties.getProperty(ARG_STORAGE, "./data");
+
         this.storage = CompactifiedStorage.getStorage(storageRoot, network);
     }
 
