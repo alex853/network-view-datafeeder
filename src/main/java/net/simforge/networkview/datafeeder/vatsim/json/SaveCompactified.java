@@ -148,7 +148,7 @@ public class SaveCompactified extends BaseTask {
         }
     }
 
-    private void savePilotPositions(final Report report, final List<ReportJSONFile.ClientInfo> pilotInfos) {
+    private void savePilotPositions(final Report report, final List<ReportJSONFile.ClientInfo> pilotInfos) throws IOException {
         BM.start("savePilotPositions");
         try {
             final List<Position> positions = new ArrayList<>();
