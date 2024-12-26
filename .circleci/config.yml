@@ -23,7 +23,7 @@ jobs:
           name: Deploy Over SSH
           command: |
             echo '<hostname> <type> <key>' >> ~/.ssh/known_hosts
-            scp -o StrictHostKeyChecking=no -P ${SSH_PORT} -r ~/repo/build/libs/*.jar ${SSH_USER}@${SSH_HOST}:~/circleciuploads/network-view-datafeeder.zip
+            scp -o StrictHostKeyChecking=no -P ${SSH_PORT} -r ~/repo/build/libs/*.jar ${SSH_USER}@${SSH_HOST}:~/circleciuploads/network-view-datafeeder.jar
 
 workflows:
   version: 2
