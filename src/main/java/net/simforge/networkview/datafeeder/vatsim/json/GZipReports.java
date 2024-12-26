@@ -37,7 +37,7 @@ public class GZipReports extends BaseTask {
 
         this.storage = ReportJSONStorage.getStorage(storageRoot, network);
 
-        setBaseSleepTime(1000);
+        setBaseSleepTime(600000);
     }
 
     @Override
