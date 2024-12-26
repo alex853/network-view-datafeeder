@@ -19,14 +19,14 @@ public class ReportJSONStorage {
 
     public static final String DEFAULT_STORAGE_ROOT = "../data";
 
-    private static DateTimeFormatter yyyy = DateTimeFormatter.ofPattern("yyyy");//.withZoneUTC();
-    private static DateTimeFormatter yyyyMM = DateTimeFormatter.ofPattern("yyyy-MM");//.withZoneUTC();
-    private static DateTimeFormatter yyyyMMdd = DateTimeFormatter.ofPattern("yyyy-MM-dd");//.withZoneUTC();
+    private static final DateTimeFormatter yyyy = DateTimeFormatter.ofPattern("yyyy");//.withZoneUTC();
+    private static final DateTimeFormatter yyyyMM = DateTimeFormatter.ofPattern("yyyy-MM");//.withZoneUTC();
+    private static final DateTimeFormatter yyyyMMdd = DateTimeFormatter.ofPattern("yyyy-MM-dd");//.withZoneUTC();
 
-    private File root;
-    private Network network;
+    private final File root;
+    private final Network network;
 
-    private ReportJSONStorage(String rootPath, Network network) {
+    private ReportJSONStorage(final String rootPath, final Network network) {
         this.network = network;
 
         root = new File(rootPath + "/" + network.name());
@@ -34,7 +34,7 @@ public class ReportJSONStorage {
         root.mkdirs();
     }
 
-    public static ReportJSONStorage getStorage(String storageRoot, Network network) {
+    public static ReportJSONStorage getStorage(final String storageRoot, final Network network) {
         return new ReportJSONStorage(storageRoot, network);
     }
 
@@ -42,33 +42,27 @@ public class ReportJSONStorage {
         return root;
     }
 
-    public void saveReport(String report, String data) throws IOException {
-        String filename = reportToFullPath(report);
-        File file = new File(root, filename);
+    public void saveReport(final String report, final String data) throws IOException {
+        final File file = getReportFile(report);
         //noinspection ResultOfMethodCallIgnored
         file.getParentFile().mkdirs();
         IOHelper.saveFile(file, data);
     }
 
-    private String reportToFullPath(String report) {
-        LocalDateTime dateTime = ReportUtils.fromTimestampJava(report);
-        return yyyy.format(dateTime) + "/" + yyyyMM.format(dateTime) + "/" + yyyyMMdd.format(dateTime) + "/" + report + ".json";
-    }
-
     public String getFirstReport() throws IOException {
-        List<String> allReports = listAllReports();
+        final List<String> allReports = listAllReports();
         if (allReports.size() == 0) {
             return null;
         }
         return allReports.get(0);
     }
 
-    public String getNextReport(String previousReport) throws IOException {
-        List<String> allReports = listAllReports();
+    public String getNextReport(final String previousReport) throws IOException {
+        final List<String> allReports = listAllReports();
         if (allReports.size() == 0) {
             return null;
         }
-        int index = allReports.indexOf(previousReport);
+        final int index = allReports.indexOf(previousReport);
         if (index == -1) {
             return null;
         }
@@ -79,20 +73,17 @@ public class ReportJSONStorage {
     }
 
     public String getLastReport() throws IOException {
-        List<String> allReports = listAllReports();
+        final List<String> allReports = listAllReports();
         if (allReports.size() == 0) {
             return null;
         }
         return allReports.get(allReports.size() - 1);
     }
 
-    public ReportJSONFile getReportFile(String report) throws IOException {
-        String filename = reportToFullPath(report);
-        File file = new File(root, filename);
-        String content = IOHelper.loadFile(file);
-        //noinspection UnnecessaryLocalVariable
-        ReportJSONFile reportFile = new ReportJSONFile(network, content);
-        return reportFile;
+    public ReportJSONFile loadReport(final String report) throws IOException {
+        final File file = getReportFile(report);
+        final String content = IOHelper.loadFile(file);
+        return new ReportJSONFile(network, content);
     }
 
     public List<String> listAllReports() throws IOException {
@@ -102,12 +93,12 @@ public class ReportJSONStorage {
 
             Files.walkFileTree(Paths.get(root.toURI()), new FileVisitor<Path>() {
                 @Override
-                public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) {
+                public FileVisitResult preVisitDirectory(final Path dir, final BasicFileAttributes attrs) {
                     return FileVisitResult.CONTINUE;
                 }
 
                 @Override
-                public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) {
+                public FileVisitResult visitFile(final Path file, final BasicFileAttributes attrs) {
                     if (!attrs.isRegularFile()) {
                         return FileVisitResult.CONTINUE;
                     }
@@ -129,12 +120,12 @@ public class ReportJSONStorage {
                 }
 
                 @Override
-                public FileVisitResult visitFileFailed(Path file, IOException exc) {
+                public FileVisitResult visitFileFailed(final Path file, final IOException exc) {
                     return FileVisitResult.CONTINUE;
                 }
 
                 @Override
-                public FileVisitResult postVisitDirectory(Path dir, IOException exc) {
+                public FileVisitResult postVisitDirectory(final Path dir, final IOException exc) {
                     return FileVisitResult.CONTINUE;
                 }
             });
@@ -145,5 +136,15 @@ public class ReportJSONStorage {
         } finally {
             BM.stop();
         }
+    }
+
+    public File getReportFile(final String report) {
+        final String filename = reportToFullPath(report);
+        return new File(root, filename);
+    }
+
+    private String reportToFullPath(final String report) {
+        final LocalDateTime dateTime = ReportUtils.fromTimestampJava(report);
+        return yyyy.format(dateTime) + "/" + yyyyMM.format(dateTime) + "/" + yyyyMMdd.format(dateTime) + "/" + report + ".json";
     }
 }

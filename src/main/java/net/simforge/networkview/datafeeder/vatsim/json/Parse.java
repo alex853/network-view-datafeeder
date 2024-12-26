@@ -144,7 +144,7 @@ public class Parse extends BaseTask {
 
             logger.debug(ReportUtils.log(report) + " - Parsing started...");
 
-            ReportJSONFile reportFile = storage.getReportFile(report);
+            ReportJSONFile reportFile = storage.loadReport(report);
             logger.debug(ReportUtils.log(report) + " -       Data splitted");
 
             List<ReportJSONFile.ClientInfo> pilotInfos = reportFile.getPilotInfos();
