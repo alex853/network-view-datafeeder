@@ -80,7 +80,6 @@ public class GZipReports extends BaseTask {
 
             final LocalDateTime thresholdDt = lastCompactifiedReportDt.minusHours(1);
             if (reportDt.isAfter(thresholdDt)) {
-                logger.info("No reports for zipping at the moment");
                 return;
             }
 
