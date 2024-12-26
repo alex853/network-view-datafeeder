@@ -13,20 +13,17 @@ jobs:
           keys:
             - v1-dependencies-{{ checksum "build.gradle" }}
             - v1-dependencies-
-      - run: gradle distZip --refresh-dependencies
+      - run: gradle jar
       - save_cache:
           paths:
             - ~/.gradle
           key: v1-dependencies-{{ checksum "build.gradle" }}
       - add_ssh_keys
-#          fingerprints:
-#            - "${SSH_FINGERPRINT}"
-      #- run: ssh-keyscan -H ${SSH_SERVER} >> ~/.ssh/known_hosts
       - run:
           name: Deploy Over SSH
           command: |
-            echo '${SSH_KNOWN_HOST}' >> ~/.ssh/known_hosts
-            scp -o StrictHostKeyChecking=no -P ${SSH_PORT} -r ~/repo/build/distributions/*.zip ${SSH_USER}@${SSH_HOST}:~/circleciuploads/network-view-datafeeder/network-view-datafeeder.zip
+            echo '<hostname> <type> <key>' >> ~/.ssh/known_hosts
+            scp -o StrictHostKeyChecking=no -P ${SSH_PORT} -r ~/repo/build/libs/*.jar ${SSH_USER}@${SSH_HOST}:~/circleciuploads/network-view-datafeeder.zip
 
 workflows:
   version: 2
