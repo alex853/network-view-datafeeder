@@ -21,6 +21,7 @@ import java.util.List;
 import java.util.Properties;
 import java.util.concurrent.TimeUnit;
 
+@Deprecated
 public class Download extends BaseTask {
 
     private static final String ARG_NETWORK = "network";

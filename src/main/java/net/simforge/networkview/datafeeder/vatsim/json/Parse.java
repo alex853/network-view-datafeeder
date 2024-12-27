@@ -26,6 +26,7 @@ import java.util.List;
 import java.util.Properties;
 import java.util.concurrent.TimeUnit;
 
+@Deprecated
 public class Parse extends BaseTask {
 
     private static final String ARG_SINGLE = "single";

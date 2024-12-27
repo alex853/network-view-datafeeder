@@ -2,6 +2,7 @@ package net.simforge.networkview.datafeeder.vatsim.json;
 
 import net.simforge.commons.io.Marker;
 import net.simforge.commons.legacy.BM;
+import net.simforge.commons.legacy.misc.Settings;
 import net.simforge.commons.misc.JavaTime;
 import net.simforge.commons.runtime.BaseTask;
 import net.simforge.commons.runtime.RunningMarker;
@@ -11,6 +12,7 @@ import net.simforge.networkview.core.report.ParsingLogics;
 import net.simforge.networkview.core.report.ReportUtils;
 import net.simforge.networkview.core.report.compact.CompactifiedStorage;
 import net.simforge.networkview.core.report.persistence.*;
+import net.simforge.networkview.datafeeder.SettingNames;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
@@ -22,7 +24,6 @@ import java.util.concurrent.TimeUnit;
 public class SaveCompactified extends BaseTask {
 
     private static final String ARG_SINGLE = "single";
-    private static final String ARG_STORAGE = "storage";
     private static final String ARG_KEEP_DAYS = "keep-days";
 
     private final Network network;
@@ -38,7 +39,7 @@ public class SaveCompactified extends BaseTask {
         super("SaveCmp-VATSIM-JSON");
 
         this.network = Network.VATSIM;
-        this.storageRoot = properties.getProperty(ARG_STORAGE, ReportJSONStorage.DEFAULT_STORAGE_ROOT);
+        this.storageRoot = Settings.get(SettingNames.storageRoot) != null ? Settings.get(SettingNames.storageRoot) : ReportJSONStorage.DEFAULT_STORAGE_ROOT;
         this.keepDays = Math.max(Integer.parseInt(properties.getProperty(ARG_KEEP_DAYS)), 1);
         this.singleRun = Boolean.parseBoolean(properties.getProperty(ARG_SINGLE, "false"));
 

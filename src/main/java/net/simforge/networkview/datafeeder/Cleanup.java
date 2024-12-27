@@ -17,6 +17,7 @@ import java.time.LocalDateTime;
 import java.util.Properties;
 import java.util.concurrent.TimeUnit;
 
+@Deprecated
 public class Cleanup extends BaseTask {
     private static final String ARG_NETWORK = "network";
     private static final String ARG_KEEP_DAYS = "keep-days";

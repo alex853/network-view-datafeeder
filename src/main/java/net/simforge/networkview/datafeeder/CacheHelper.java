@@ -5,6 +5,7 @@ import org.ehcache.Cache;
 import java.lang.reflect.Field;
 import java.util.Map;
 
+@Deprecated
 public class CacheHelper {
     public static String getEstimatedCacheSize(Cache cache) {
         try {

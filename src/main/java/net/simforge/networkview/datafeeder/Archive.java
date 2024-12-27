@@ -28,6 +28,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+@Deprecated
 public class Archive extends BaseTask {
     private static final String ARG_NETWORK = "network";
 

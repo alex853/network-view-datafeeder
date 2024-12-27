@@ -3,10 +3,12 @@ package net.simforge.networkview.datafeeder.vatsim.json;
 import net.simforge.commons.io.IOHelper;
 import net.simforge.commons.io.Marker;
 import net.simforge.commons.legacy.BM;
+import net.simforge.commons.legacy.misc.Settings;
 import net.simforge.commons.runtime.BaseTask;
 import net.simforge.commons.runtime.RunningMarker;
 import net.simforge.networkview.core.Network;
 import net.simforge.networkview.core.report.ReportUtils;
+import net.simforge.networkview.datafeeder.SettingNames;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -20,7 +22,6 @@ import java.util.zip.GZIPOutputStream;
 public class GZipReports extends BaseTask {
 
     private static final String ARG_SINGLE = "single";
-    private static final String ARG_STORAGE = "storage";
 
     private final Network network = Network.VATSIM;
     private final String storageRoot;
@@ -32,7 +33,7 @@ public class GZipReports extends BaseTask {
     public GZipReports(final Properties properties) {
         super("GZipRep-VATSIM-JSON");
 
-        this.storageRoot = properties.getProperty(ARG_STORAGE, ReportJSONStorage.DEFAULT_STORAGE_ROOT);
+        this.storageRoot = Settings.get(SettingNames.storageRoot) != null ? Settings.get(SettingNames.storageRoot) : ReportJSONStorage.DEFAULT_STORAGE_ROOT;
         this.singleRun = Boolean.parseBoolean(properties.getProperty(ARG_SINGLE, "false"));
 
         this.storage = ReportJSONStorage.getStorage(storageRoot, network);

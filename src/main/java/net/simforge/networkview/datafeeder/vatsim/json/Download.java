@@ -3,12 +3,14 @@ package net.simforge.networkview.datafeeder.vatsim.json;
 import com.google.gson.Gson;
 import net.simforge.commons.io.IOHelper;
 import net.simforge.commons.legacy.BM;
+import net.simforge.commons.legacy.misc.Settings;
 import net.simforge.commons.misc.Misc;
 import net.simforge.commons.runtime.BaseTask;
 import net.simforge.commons.runtime.RunningMarker;
 import net.simforge.commons.runtime.ThreadMonitor;
 import net.simforge.networkview.core.Network;
 import net.simforge.networkview.core.report.ReportUtils;
+import net.simforge.networkview.datafeeder.SettingNames;
 
 import java.io.File;
 import java.io.IOException;
@@ -22,8 +24,6 @@ import java.util.Properties;
 import java.util.concurrent.TimeUnit;
 
 public class Download extends BaseTask {
-
-    private static final String ARG_STORAGE = "storage";
     private static final String ARG_PERIOD = "period";
     private static final String ARG_SINGLE = "single";
     private static final String ARG_STATUS_FILE_INTERVAL = "status-file-interval";
@@ -62,7 +62,7 @@ public class Download extends BaseTask {
             downloadPeriod = 30;
         }
 
-        storageRoot = properties.getProperty(ARG_STORAGE, storageRoot);
+        storageRoot = Settings.get(SettingNames.storageRoot) != null ? Settings.get(SettingNames.storageRoot) : storageRoot;
 
         singleRun = Boolean.parseBoolean(properties.getProperty(ARG_SINGLE, Boolean.toString(singleRun)));
 
