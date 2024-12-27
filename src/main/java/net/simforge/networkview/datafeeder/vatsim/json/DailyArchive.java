@@ -94,12 +94,12 @@ public class DailyArchive extends BaseTask {
                         final List<File> gzReportFiles = Arrays.stream(files).filter(f -> f.getName().endsWith(".gz")).collect(Collectors.toList());
 
                         if (gzReportFiles.isEmpty()) {
-                            logger.warn("Date folder {} - no gz files found", date.getParentFile());
+                            logger.warn("Date folder {} - no gz files found", date.getName());
                             continue;
                         }
 
                         if (anyNonGz) {
-                            logger.warn("Date folder {} - non-gz files presented", date.getParentFile());
+                            logger.warn("Date folder {} - non-gz files presented", date.getName());
                             continue;
                         }
 
@@ -110,7 +110,7 @@ public class DailyArchive extends BaseTask {
             }
 
             if (dateFolderFile == null) {
-                logger.warn("No date folder to be archived found");
+                logger.warn("No date folder for archival found");
                 return;
             }
 
