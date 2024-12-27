@@ -1,15 +1,14 @@
 plugins {
     id 'java'
-    id 'application'
+    id 'org.springframework.boot' version '2.3.5.RELEASE'
+    id 'io.spring.dependency-management' version '1.0.10.RELEASE'
 }
 
-group = 'net.simforge.networkview'
-version repositoryVersion
+group = 'net.simforge'
+version = repositoryVersion
+
 sourceCompatibility = '1.8'
-
-application {
-    mainClassName = 'net.simforge.commons.runtime.TaskExecutor'
-}
+targetCompatibility = '1.8'
 
 repositories {
     mavenCentral()
@@ -24,27 +23,17 @@ dependencies {
     implementation 'net.simforge:simforge-commons-ext:latest.release'
     implementation 'net.simforge:network-view-core:latest.release'
 
-    implementation 'postgresql:postgresql:9.1-901-1.jdbc4'
-    implementation 'ch.qos.logback:logback-classic:1.1.7'
     implementation 'org.ehcache:ehcache:3.3.1'
-    implementation 'com.google.code.gson:gson:2.8.6'
+    implementation 'com.google.code.gson:gson:2.8.9'
 
     implementation 'org.hibernate:hibernate-core:5.0.1.Final'
     implementation 'org.hibernate:hibernate-java8:5.0.1.Final'
 
-    testImplementation 'junit:junit:4.11'
+    implementation 'org.springframework.boot:spring-boot-starter'
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
 }
 
-jar {
-    manifest {
-        attributes(
-                'Main-Class': application.mainClass
-        )
-    }
-    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
-    from {
-        configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) }
-    }
-    archiveBaseName.set('network-view-datafeeder')
-    archiveVersion.set(repositoryVersion)
+test {
+    useJUnitPlatform()
 }
