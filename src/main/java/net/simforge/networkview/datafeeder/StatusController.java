@@ -47,8 +47,8 @@ public class StatusController {
         final Duration jsonReportLag = Duration.between(lastJsonReportDt, now);
         final Duration compactifiedReportLag = Duration.between(lastCompactifiedReportDt, now);
 
-        final boolean jsonReportLagOk = jsonReportLag.getSeconds() < 600;
-        final boolean compactifiedReportLagOk = compactifiedReportLag.getSeconds() < 600;
+        final boolean jsonReportLagOk = jsonReportLag.getSeconds() < 6;
+        final boolean compactifiedReportLagOk = compactifiedReportLag.getSeconds() < 6;
         final boolean ok = jsonReportLagOk && compactifiedReportLagOk;
 
         if (ok) {
