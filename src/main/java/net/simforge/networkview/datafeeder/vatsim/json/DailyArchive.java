@@ -153,7 +153,20 @@ public class DailyArchive extends BaseTask {
             final boolean renameResult = tempFile.renameTo(targetFile);
 
             if (!renameResult) {
-                logger.error("Date folder {} - renaming FAILED!", dateFolderFile.getName());
+                logger.error("Date folder {} - renaming FAILED! terminating", dateFolderFile.getName());
+                return;
+            }
+
+            for (final File file : filesToArchive) {
+                if (!file.delete()) {
+                    logger.error("Date folder {} - COULD NOT DELETE {}", dateFolderFile.getName(), file.getName());
+                }
+            }
+
+            if (!dateFolderFile.delete()) {
+                logger.error("Date folder {} - COULD NOT DELETE DATE FOLDER", dateFolderFile.getName());
+            } else {
+                logger.info("Date folder {} - Cleanup after archival completed", dateFolderFile.getName());
             }
 
         } catch (final IOException e) {
