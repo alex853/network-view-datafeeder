@@ -72,7 +72,7 @@ public class StatusController {
         final long freeSpaceBytes = file.getFreeSpace();
         final long freeSpaceMb = freeSpaceBytes / (1024 * 1024);
 
-        final boolean ok = freeSpaceMb > 10000;
+        final boolean ok = freeSpaceMb > 1000;
 
         if (ok) {
             return ResponseEntity.ok(new DiskStatusDto(
