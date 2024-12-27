@@ -47,8 +47,8 @@ public class StatusController {
         final Duration jsonReportLag = Duration.between(lastJsonReportDt, now);
         final Duration compactifiedReportLag = Duration.between(lastCompactifiedReportDt, now);
 
-        final boolean jsonReportLagOk = jsonReportLag.getSeconds() < 6;
-        final boolean compactifiedReportLagOk = compactifiedReportLag.getSeconds() < 6;
+        final boolean jsonReportLagOk = jsonReportLag.getSeconds() < 600;
+        final boolean compactifiedReportLagOk = compactifiedReportLag.getSeconds() < 600;
         final boolean ok = jsonReportLagOk && compactifiedReportLagOk;
 
         if (ok) {
@@ -72,7 +72,7 @@ public class StatusController {
         final long freeSpaceBytes = file.getFreeSpace();
         final long freeSpaceMb = freeSpaceBytes / (1024 * 1024);
 
-        final boolean ok = freeSpaceMb > 1000;
+        final boolean ok = freeSpaceMb > 10000;
 
         if (ok) {
             return ResponseEntity.ok(new DiskStatusDto(
