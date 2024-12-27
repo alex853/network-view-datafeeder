@@ -16,6 +16,7 @@ import java.util.List;
 import java.util.Properties;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
+import java.util.zip.Deflater;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
@@ -129,6 +130,8 @@ public class DailyArchive extends BaseTask {
             long lastInfoTime = System.currentTimeMillis();
             try (final FileOutputStream fos = new FileOutputStream(tempFile);
                  final ZipOutputStream zos = new ZipOutputStream(fos)) {
+
+                zos.setLevel(Deflater.BEST_COMPRESSION);
 
                 int counter = 0;
                 for (final File file : filesToArchive) {
