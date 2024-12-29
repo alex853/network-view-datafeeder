@@ -43,51 +43,76 @@ public class ReportJSONStorage {
     }
 
     public void saveReport(final String report, final String data) throws IOException {
-        final File file = getReportFile(report);
-        //noinspection ResultOfMethodCallIgnored
-        file.getParentFile().mkdirs();
-        IOHelper.saveFile(file, data);
+        BM.start("ReportJSONStorage.saveReport");
+        try {
+            final File file = getReportFile(report);
+            //noinspection ResultOfMethodCallIgnored
+            file.getParentFile().mkdirs();
+            IOHelper.saveFile(file, data);
+        } finally {
+            BM.stop();
+        }
     }
 
     public String getFirstReport() throws IOException {
-        final List<String> allReports = listAllReports();
-        if (allReports.size() == 0) {
-            return null;
+        BM.start("ReportJSONStorage.getFirstReport");
+        try {
+            final List<String> allReports = listAllReports();
+            if (allReports.size() == 0) {
+                return null;
+            }
+            return allReports.get(0);
+        } finally {
+            BM.stop();
         }
-        return allReports.get(0);
     }
 
     public String getNextReport(final String previousReport) throws IOException {
-        final List<String> allReports = listAllReports();
-        if (allReports.size() == 0) {
-            return null;
+        BM.start("ReportJSONStorage.getNextReport");
+        try {
+            final List<String> allReports = listAllReports();
+            if (allReports.size() == 0) {
+                return null;
+            }
+            final int index = allReports.indexOf(previousReport);
+            if (index == -1) {
+                return null;
+            }
+            if (index == allReports.size() - 1) {
+                return null;
+            }
+            return allReports.get(index + 1);
+        } finally {
+            BM.stop();
         }
-        final int index = allReports.indexOf(previousReport);
-        if (index == -1) {
-            return null;
-        }
-        if (index == allReports.size() - 1) {
-            return null;
-        }
-        return allReports.get(index + 1);
     }
 
     public String getLastReport() throws IOException {
-        final List<String> allReports = listAllReports();
-        if (allReports.size() == 0) {
-            return null;
+        BM.start("ReportJSONStorage.getLastReport");
+        try {
+            final List<String> allReports = listAllReports();
+            if (allReports.size() == 0) {
+                return null;
+            }
+            return allReports.get(allReports.size() - 1);
+        } finally {
+            BM.stop();
         }
-        return allReports.get(allReports.size() - 1);
     }
 
     public ReportJSONFile loadReport(final String report) throws IOException {
-        final File file = getReportFile(report);
-        final String content = IOHelper.loadFile(file);
-        return new ReportJSONFile(network, content);
+        BM.start("ReportJSONStorage.loadReport");
+        try {
+            final File file = getReportFile(report);
+            final String content = IOHelper.loadFile(file);
+            return new ReportJSONFile(network, content);
+        } finally {
+            BM.stop();
+        }
     }
 
     public List<String> listAllReports() throws IOException {
-        BM.start("ReportJSONStorage.listAllReportFiles");
+        BM.start("ReportJSONStorage.listAllReports");
         try {
             final List<String> reports = new ArrayList<>();
 
