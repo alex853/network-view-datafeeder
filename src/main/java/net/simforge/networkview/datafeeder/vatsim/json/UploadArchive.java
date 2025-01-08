@@ -1,29 +1,22 @@
 package net.simforge.networkview.datafeeder.vatsim.json;
 
-import net.simforge.commons.io.IOHelper;
 import net.simforge.commons.legacy.BM;
 import net.simforge.commons.legacy.misc.Settings;
 import net.simforge.commons.runtime.BaseTask;
 import net.simforge.commons.runtime.RunningMarker;
 import net.simforge.networkview.core.Network;
 import net.simforge.networkview.datafeeder.SettingNames;
+import software.amazon.awssdk.auth.credentials.ProfileCredentialsProvider;
+import software.amazon.awssdk.core.sync.RequestBody;
+import software.amazon.awssdk.regions.Region;
+import software.amazon.awssdk.services.s3.S3Client;
+import software.amazon.awssdk.services.s3.model.*;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.sql.Date;
+import java.io.*;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.util.Arrays;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Properties;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
-import java.util.zip.Deflater;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipOutputStream;
 
 public class UploadArchive extends BaseTask {
 
@@ -109,11 +102,23 @@ public class UploadArchive extends BaseTask {
             final String s3Path = s3PathTemplate
                     .replace("{year}", String.valueOf(year))
                     .replace("{file}", dateArchiveFile.getName());
-            logger.info("Archive file {} found - will be uploaded to {}:{}", dateArchiveFile.getName(), s3BucketName, s3Path);
+            logger.info("Archive file {} - found - will be uploaded to {}:{}", dateArchiveFile.getName(), s3BucketName, s3Path);
 
-            if (Math.random() == 0.0000000000000000000001) {
-                throw new IOException();
+            final Region region = Region.US_EAST_1;
+
+            try (S3Client s3 = S3Client.builder()
+                    .region(region)
+                    .credentialsProvider(ProfileCredentialsProvider.create())
+                    .build()) {
+                // Multipart upload for large file
+                uploadLargeFileToDeepGlacier(s3, s3BucketName, s3Path, dateArchiveFile);
+                logger.info("Archive file {} - Uploaded COMPLETELY", dateArchiveFile.getName());
+
+                if (!dateArchiveFile.delete()) {
+                    logger.error("Archive file {} - COULD NOT DELETE ARCHIVE FILE", dateArchiveFile.getName());
+                }
             }
+
         } catch (final IOException e) {
             logger.error("I/O exception happened", e);
             throw new RuntimeException("I/O exception happened", e);
@@ -122,7 +127,79 @@ public class UploadArchive extends BaseTask {
         }
     }
 
-    private File[] listFolders(final File parent, final String pattern) {
+    private void uploadLargeFileToDeepGlacier(final S3Client s3,
+                                                     final String bucketName,
+                                                     final String keyName,
+                                                     final File file) throws IOException {
+        long partSize = 5L * 1024L * 1024L; // Minimum part size is 5MB
+
+        // Step 1: Initiate a multipart upload
+        final CreateMultipartUploadRequest createRequest = CreateMultipartUploadRequest.builder()
+                .bucket(bucketName)
+                .key(keyName)
+                .storageClass(StorageClass.DEEP_ARCHIVE)
+                .build();
+        final CreateMultipartUploadResponse createResponse = s3.createMultipartUpload(createRequest);
+        final String uploadId = createResponse.uploadId();
+
+        try {
+            // Step 2: Upload parts
+            final long fileLength = file.length();
+            long position = 0;
+            int partNumber = 1;
+            final List<CompletedPart> completedParts = new ArrayList<>();
+
+            while (position < fileLength) {
+                final long bytesRemaining = fileLength - position;
+                final long bytesToUpload = Math.min(partSize, bytesRemaining);
+
+                final UploadPartRequest uploadPartRequest = UploadPartRequest.builder()
+                        .bucket(bucketName)
+                        .key(keyName)
+                        .uploadId(uploadId)
+                        .partNumber(partNumber)
+                        .build();
+
+                try (final InputStream inputStream = new FileInputStream(file)) {
+                    inputStream.skip(position);
+                    final RequestBody requestBody = RequestBody.fromInputStream(inputStream, bytesToUpload);
+
+                    final UploadPartResponse uploadPartResponse = s3.uploadPart(uploadPartRequest, requestBody);
+                    completedParts.add(
+                            CompletedPart.builder()
+                                    .partNumber(partNumber)
+                                    .eTag(uploadPartResponse.eTag())
+                                    .build()
+                    );
+                }
+
+                position += bytesToUpload;
+                partNumber++;
+
+                logger.info("Archive file {} - uploaded {}%", file, Math.round((position*100.0) / fileLength));
+            }
+
+            // Step 3: Complete the multipart upload
+            final CompleteMultipartUploadRequest completeRequest = CompleteMultipartUploadRequest.builder()
+                    .bucket(bucketName)
+                    .key(keyName)
+                    .uploadId(uploadId)
+                    .multipartUpload(CompletedMultipartUpload.builder().parts(completedParts).build())
+                    .build();
+            s3.completeMultipartUpload(completeRequest);
+        } catch (final IOException e) {
+            // Step 4: Abort the upload in case of failure
+            final AbortMultipartUploadRequest abortRequest = AbortMultipartUploadRequest.builder()
+                    .bucket(bucketName)
+                    .key(keyName)
+                    .uploadId(uploadId)
+                    .build();
+            s3.abortMultipartUpload(abortRequest);
+            throw new IOException("Multipart upload failed: " + e.getMessage(), e);
+        }
+    }
+
+    private static File[] listFolders(final File parent, final String pattern) {
         final File[] files = parent.listFiles(f -> f.isDirectory() && f.getName().matches(pattern));
         if (files == null) {
             return new File[0];
@@ -131,7 +208,7 @@ public class UploadArchive extends BaseTask {
         return files;
     }
 
-    private File[] listFiles(final File parent) {
+    private static File[] listFiles(final File parent) {
         final File[] files = parent.listFiles(File::isFile);
         if (files == null) {
             return new File[0];
