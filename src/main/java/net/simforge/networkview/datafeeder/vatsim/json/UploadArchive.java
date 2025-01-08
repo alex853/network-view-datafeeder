@@ -112,11 +112,12 @@ public class UploadArchive extends BaseTask {
                     .build()) {
                 // Multipart upload for large file
                 uploadLargeFileToDeepGlacier(s3, s3BucketName, s3Path, dateArchiveFile);
-                logger.info("Archive file {} - Uploaded COMPLETELY", dateArchiveFile.getName());
+            }
 
-                if (!dateArchiveFile.delete()) {
-                    logger.error("Archive file {} - COULD NOT DELETE ARCHIVE FILE", dateArchiveFile.getName());
-                }
+            logger.info("Archive file {} - Uploaded COMPLETELY", dateArchiveFile.getName());
+
+            if (!dateArchiveFile.delete()) {
+                logger.error("Archive file {} - COULD NOT DELETE ARCHIVE FILE", dateArchiveFile.getName());
             }
 
         } catch (final IOException e) {
@@ -128,10 +129,10 @@ public class UploadArchive extends BaseTask {
     }
 
     private void uploadLargeFileToDeepGlacier(final S3Client s3,
-                                                     final String bucketName,
-                                                     final String keyName,
-                                                     final File file) throws IOException {
-        long partSize = 5L * 1024L * 1024L; // Minimum part size is 5MB
+                                              final String bucketName,
+                                              final String keyName,
+                                              final File file) throws IOException {
+        final long partSize = 5L * 1024L * 1024L; // Minimum part size is 5MB
 
         // Step 1: Initiate a multipart upload
         final CreateMultipartUploadRequest createRequest = CreateMultipartUploadRequest.builder()
