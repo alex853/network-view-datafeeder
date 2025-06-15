@@ -21,7 +21,7 @@ repositories {
 dependencies {
     implementation 'net.simforge:simforge-commons:latest.release'
     implementation 'net.simforge:simforge-commons-ext:latest.release'
-    implementation 'net.simforge:network-view-core:latest.release'
+    implementation 'net.simforge:network-view-core:1.2.11' // todo switch back latest.release'
 
     implementation 'org.ehcache:ehcache:3.3.1'
     implementation 'com.google.code.gson:gson:2.8.9'
