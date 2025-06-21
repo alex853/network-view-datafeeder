@@ -42,13 +42,15 @@ public class ReportJSONStorage {
         return root;
     }
 
+    @SuppressWarnings("ResultOfMethodCallIgnored")
     public void saveReport(final String report, final String data) throws IOException {
         BM.start("ReportJSONStorage.saveReport");
         try {
             final File file = getReportFile(report);
-            //noinspection ResultOfMethodCallIgnored
+            final File tmpFile = new File(file.getAbsolutePath() + ".tmp");
             file.getParentFile().mkdirs();
-            IOHelper.saveFile(file, data);
+            IOHelper.saveFile(tmpFile, data);
+            tmpFile.renameTo(file);
         } finally {
             BM.stop();
         }
